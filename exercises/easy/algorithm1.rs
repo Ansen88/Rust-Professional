@@ -69,14 +69,67 @@ impl<T> LinkedList<T> {
             },
         }
     }
-	pub fn merge(list_a:LinkedList<T>,list_b:LinkedList<T>) -> Self
+	
+    pub fn merge(list_a:LinkedList<T>,list_b:LinkedList<T>) -> Self
+    where 
+        T : Ord + Copy
 	{
 		//TODO
-		Self {
-            length: 0,
-            start: None,
-            end: None,
+        let mut list_c = LinkedList::<T>::new();
+        let mut current_a = list_a.start;
+        let mut current_b = list_b.start;
+
+        while current_a.is_some() || current_b.is_some() {
+            match (current_a, current_b) {
+                (Some(node_a), Some(node_b)) => {
+                    let val_a = unsafe {
+                        (*node_a.as_ptr()).val
+                    };
+
+                    let val_b = unsafe {
+                        (*node_b.as_ptr()).val
+                    };
+
+                    if val_a < val_b {
+                        list_c.add(val_a);
+
+                        current_a = unsafe {(*node_a.as_ptr()).next};
+                        current_b = Some(node_b);
+                    }else{
+                        list_c.add(val_b);
+                        
+                        current_b = unsafe {(*node_b.as_ptr()).next};
+                        current_a = Some(node_a);
+                    }
+                },
+
+                (Some(node_a), None) => {
+                    let item = unsafe {
+                        (*node_a.as_ptr()).val
+                    };
+
+                    list_c.add(item);
+                    current_a = unsafe {
+                        (*node_a.as_ptr()).next
+                    };
+                },
+
+                (None, Some(node_b)) => {
+                    let item = unsafe {
+                        (*node_b.as_ptr()).val
+                    };
+
+                    list_c.add(item);
+                    current_b = unsafe {
+                        (*node_b.as_ptr()).next
+                    };
+                },
+
+                (None, None) => break,
+            }
         }
+
+        list_c
 	}
 }
 
